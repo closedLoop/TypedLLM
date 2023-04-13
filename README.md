@@ -15,7 +15,13 @@ TypedLLM is a Python repository that streamlines the process of converting unstr
 - [Contact Information](#contact-information)
 
 ## Installation
-To install TypedLLM, follow these steps:
+To install TypedLLM, follow one of these options:
+
+It is recommended to install TypedLLM in a virtual environment. To do so, follow these steps:
+
+    python3 -m venv venv
+    source venv/bin/activate
+    # or do similar if you are using poetry or conda to manage your virtual environment
 
 1. Pip install.
     ```
@@ -30,26 +36,36 @@ To install TypedLLM, follow these steps:
     ```
     cd TypedLLM
     ```
-    Install the required packages:
+    Install the dependencies and the library
     ```
     pip install -r requirements.txt
+    pip install .
     ```
 
 ## Usage
 To use TypedLLM, first import the necessary modules:
 
-```python
-from typedllm import TypedLLM, PydanticConverter
-```
+    ```python
+    from pydantic import Field, BaseModel
+    from typedllm.pytandic_schema import typedllm_call
 
-Then, create an instance of the converter and process your text output:
+    task = "Brainstorm a json list of 10 examples of ExampleModel instances."
+    # task = "What is the personal information of Barack Obama?"
+    llm = OpenAI(temperature=0)
 
-```python
-converter = PydanticConverter()
-typed_output = converter.convert(text_output)
-```
 
-For more detailed examples, please refer to the examples directory.
+    class ExampleModel(BaseModel):
+        name: str = Field(..., description="Name of the user")
+        age: int = Field(..., description="Age of the user")
+
+
+    data = typedllm_call(task, llm, ExampleModel)
+    print(data)
+    ```
+Outputs
+    ```
+    [ExampleModel(name='John Doe', age=25), ExampleModel(name='Jane Doe', age=22), ExampleModel(name='Bob Smith', age=30), ExampleModel(name='Alice Smith', age=28), ExampleModel(name='Johnathan Johnson', age=32), ExampleModel(name='Jill Johnson', age=27), ExampleModel(name='James Williams', age=35), ExampleModel(name='Sarah Williams', age=33), ExampleModel(name='David Brown', age=40), ExampleModel(name='Emily Brown', age=38)]```
+
 
 ## Configuration
 No specific configuration is required to use TypedLLM. However, you can customize the behavior of the converter by extending the PydanticConverter class and overriding its methods, if needed.
@@ -78,6 +94,9 @@ Set up a virtual environment:
     # install typedllm
     pip install -e .
 
+    # Install pre-commit hooks
+    pre-commit install
+
 
 ## Testing
 
@@ -87,9 +106,13 @@ Install the required testing packages:
 ```
 pip install -r requirements-dev.txt
 ```
-Run the tests:
+Run the tests one of three ways:
 ```
 pytest
+# or
+python tests/all.py
+# or run
+./run_tests_with_coverage.sh
 ```
 
 ## License
